@@ -4,6 +4,7 @@ import View from 'ol/View';
 import MVT from 'ol/format/MVT';
 import VectorTileLayer from 'ol/layer/VectorTile';
 import VectorTileSource from 'ol/source/VectorTile'; 
+import Overlay from 'ol/Overlay'; 
 const key = 'orBMUrAyq68MtoLOkhNH';
 const map = new Map({
     target: 'map-container',
@@ -24,3 +25,31 @@ const layer = new VectorTileLayer({
     })
 });
 map.addLayer(layer); 
+const overlay = new Overlay({
+    element: document.getElementById('popup-container'),
+    positioning: 'bottom-center',
+    offset: [0, -10],
+    autoPan: true
+  });
+  map.addOverlay(overlay);
+  overlay.getElement().addEventListener('click', function() {
+    overlay.setPosition();
+  });
+  map.on('click', function(e) {
+    let markup = '';
+    map.forEachFeatureAtPixel(e.pixel, function(feature) {
+      markup += `${markup && '<hr>'}<table>`;
+      const properties = feature.getProperties();
+      for (const property in properties) {
+        markup += `<tr><th>${property}</th><td>${properties[property]}</td></tr>`;
+      }
+      markup += '</table>';
+    }, {hitTolerance: 1});
+    if (markup) {
+      document.getElementById('popup-content').innerHTML = markup;
+      overlay.setPosition(e.coordinate);
+    } else {
+      overlay.setPosition();
+    }
+  });
+  
