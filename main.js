@@ -1,31 +1,21 @@
 import 'ol/ol.css';
-import Overlay from 'ol/Overlay'; 
-import {apply} from 'ol-mapbox-style';
-const map = apply('map-container', './data/bright.json'); 
-const overlay = new Overlay({
-    element: document.getElementById('popup-container'),
-    positioning: 'bottom-center',
-    offset: [0, -10],
-    autoPan: true
-  });
-  map.addOverlay(overlay);
-  overlay.getElement().addEventListener('click', function() {
-    overlay.setPosition();
-  });
-  map.on('click', function(e) {
-    let markup = '';
-    map.forEachFeatureAtPixel(e.pixel, function(feature) {
-      markup += `${markup && '<hr>'}<table>`;
-      const properties = feature.getProperties();
-      for (const property in properties) {
-        markup += `<tr><th>${property}</th><td>${properties[property]}</td></tr>`;
-      }
-      markup += '</table>';
-    }, {hitTolerance: 1});
-    if (markup) {
-      document.getElementById('popup-content').innerHTML = markup;
-      overlay.setPosition(e.coordinate);
-    } else {
-      overlay.setPosition();
-    }
-  });
+import Map from 'ol/Map';
+import View from 'ol/View';
+import TileLayer from 'ol/layer/Tile';
+import XYZSource from 'ol/source/XYZ';
+import {fromLonLat} from 'ol/proj';
+
+new Map({
+  target: 'map-container',
+  layers: [
+    new TileLayer({
+      source: new XYZSource({
+        url: 'http://tile.stamen.com/terrain/{z}/{x}/{y}.jpg'
+      })
+    })
+  ],
+  view: new View({
+    center: fromLonLat([-71.06, 42.37]),
+    zoom: 12
+  })
+});
